@@ -20,11 +20,12 @@ import (
 )
 
 const (
-	TaskManagerNameFormat     = "%s-%s-tm"
-	TaskManagerPodNameFormat  = "%s-%s-tm-pod"
-	TaskManagerContainerName  = "taskmanager"
-	TaskManagerArg            = "taskmanager"
-	TaskManagerHostnameEnvVar = "TASKMANAGER_HOSTNAME"
+	TaskManagerNameFormat        = "%s-%s-tm"
+	TaskManagerPodNameFormat     = "%s-%s-tm-pod"
+	TaskManagerContainerName     = "taskmanager"
+	TaskManagerArg               = "taskmanager"
+	TaskManagerServiceNameFormat = "%s-taskmanager"
+	TaskManagerHostnameEnvVar    = "TASKMANAGER_HOSTNAME"
 )
 
 type TaskManagerControllerInterface interface {
@@ -112,7 +113,7 @@ func (t *TaskManagerController) CreateIfNotExist(ctx context.Context, applicatio
 }
 
 func FetchTaskManagerServiceCreateObj(app *v1beta1.FlinkApplication, hash string) *coreV1.Service {
-	tmServiceName := app.Spec.TaskManagerConfig.Name
+	tmServiceName := fmt.Sprintf(TaskManagerServiceNameFormat, app.Name)
 	serviceLabels := getCommonAppLabels(app)
 	serviceLabels[FlinkAppHash] = hash
 	serviceLabels[FlinkDeploymentType] = FlinkDeploymentTypeTaskmanager
@@ -128,7 +129,7 @@ func FetchTaskManagerServiceCreateObj(app *v1beta1.FlinkApplication, hash string
 			OwnerReferences: []metaV1.OwnerReference{
 				*metaV1.NewControllerRef(app, app.GroupVersionKind()),
 			},
-			Labels: getCommonAppLabels(app),
+			Labels: k8.MergeLabels(app.Spec.TaskManagerConfig.ServiceLabels, getCommonAppLabels(app)),
 		},
 		Spec: coreV1.ServiceSpec{
 			Ports:    getTaskManagerServicePorts(app),
@@ -150,7 +151,7 @@ func getTaskManagerServicePorts(app *v1beta1.FlinkApplication) []coreV1.ServiceP
 }
 
 func GetTaskManagerPorts(app *v1beta1.FlinkApplication) []coreV1.ContainerPort {
-	ports := []coreV1.ContainerPort{
+	return k8.MergePorts(app.Spec.TaskManagerConfig.Ports, []coreV1.ContainerPort{
 		{
 			Name:          FlinkRPCPortName,
 			ContainerPort: getRPCPort(app),
@@ -167,8 +168,7 @@ func GetTaskManagerPorts(app *v1beta1.FlinkApplication) []coreV1.ContainerPort {
 			Name:          FlinkInternalMetricPortName,
 			ContainerPort: getInternalMetricsQueryPort(app),
 		},
-	}
-	return append(ports, app.Spec.TaskManagerConfig.Ports...)
+	})
 }
 
 func FetchTaskManagerContainerObj(application *v1beta1.FlinkApplication) *coreV1.Container {

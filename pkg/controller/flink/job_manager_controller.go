@@ -194,7 +194,7 @@ func FetchJobManagerServiceCreateObj(app *v1beta1.FlinkApplication, hash string)
 			OwnerReferences: []metaV1.OwnerReference{
 				*metaV1.NewControllerRef(app, app.GroupVersionKind()),
 			},
-			Labels: getCommonAppLabels(app),
+			Labels: k8.MergeLabels(app.Spec.JobManagerConfig.ServiceLabels, getCommonAppLabels(app)),
 		},
 		Spec: coreV1.ServiceSpec{
 			Ports:    getJobManagerServicePorts(app),
@@ -216,7 +216,7 @@ func getJobManagerServicePorts(app *v1beta1.FlinkApplication) []coreV1.ServicePo
 }
 
 func getJobManagerPorts(app *v1beta1.FlinkApplication) []coreV1.ContainerPort {
-	ports := []coreV1.ContainerPort{
+	return k8.MergePorts(app.Spec.JobManagerConfig.Ports, []coreV1.ContainerPort{
 		{
 			Name:          FlinkRPCPortName,
 			ContainerPort: getRPCPort(app),
@@ -237,8 +237,7 @@ func getJobManagerPorts(app *v1beta1.FlinkApplication) []coreV1.ContainerPort {
 			Name:          FlinkInternalMetricPortName,
 			ContainerPort: getInternalMetricsQueryPort(app),
 		},
-	}
-	return append(ports, app.Spec.JobManagerConfig.Ports...)
+	})
 }
 
 func FetchJobManagerContainerObj(application *v1beta1.FlinkApplication) *coreV1.Container {

@@ -56,6 +56,10 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 	app.Spec.JarName = "test.jar"
 	app.Spec.EntryClass = "com.test.MainClass"
 	app.Spec.ProgramArgs = "--test"
+	app.Spec.TaskManagerConfig.ServiceLabels = map[string]string{
+		"label-one": "1",
+		"label-two": "2",
+	}
 	annotations := map[string]string{
 		"key":                  "annotation",
 		"flink-job-properties": "jarName: test.jar\nparallelism: 8\nentryClass:com.test.MainClass\nprogramArgs:\"--test\"",
@@ -68,6 +72,11 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 		"flink-app":             "app-name",
 		"flink-app-hash":        hash,
 		"flink-deployment-type": "taskmanager",
+	}
+	expectedServiceLabels := map[string]string{
+		"flink-app": "app-name",
+		"label-one": "1",
+		"label-two": "2",
 	}
 	ctr := 0
 	mockK8Cluster := testController.k8Cluster.(*k8mock.K8Cluster)
@@ -95,9 +104,10 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 					"OPERATOR_FLINK_CONFIG").Value)
 		case 2:
 			service := object.(*coreV1.Service)
-			assert.Equal(t, app.Spec.TaskManagerConfig.Name, service.Name)
+			assert.Equal(t, app.Name+"-taskmanager", service.Name)
 			assert.Equal(t, app.Namespace, service.Namespace)
-			assert.Equal(t, map[string]string{"flink-app": "app-name", "flink-app-hash": hash, "flink-deployment-type": "taskmanager"}, service.Spec.Selector)
+			assert.Equal(t, expectedLabels, service.Spec.Selector)
+			assert.Equal(t, expectedServiceLabels, service.ObjectMeta.Labels)
 		}
 		return nil
 	}
@@ -153,9 +163,9 @@ func TestTaskManagerHACreateSuccess(t *testing.T) {
 					"OPERATOR_FLINK_CONFIG").Value)
 		case 2:
 			service := object.(*coreV1.Service)
-			assert.Equal(t, app.Spec.TaskManagerConfig.Name, service.Name)
+			assert.Equal(t, app.Name+"-taskmanager", service.Name)
 			assert.Equal(t, app.Namespace, service.Namespace)
-			assert.Equal(t, map[string]string{"flink-app": "app-name", "flink-app-hash": hash, "flink-deployment-type": "taskmanager"}, service.Spec.Selector)
+			assert.Equal(t, expectedLabels, service.Spec.Selector)
 		}
 
 		return nil

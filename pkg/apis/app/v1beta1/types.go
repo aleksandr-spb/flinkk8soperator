@@ -102,6 +102,7 @@ func (in *FlinkConfig) DeepCopy() *FlinkConfig {
 }
 
 type JobManagerConfig struct {
+	ServiceLabels         map[string]string           `json:"serviceLabels,omitempty" protobuf:"bytes,11,rep,name=serviceLabels"`
 	Resources             *apiv1.ResourceRequirements `json:"resources,omitempty"`
 	EnvConfig             EnvironmentConfig           `json:"envConfig"`
 	Ports                 []coreV1.ContainerPort      `json:"ports,omitempty"`
@@ -111,7 +112,7 @@ type JobManagerConfig struct {
 }
 
 type TaskManagerConfig struct {
-	Name                  string                      `json:"name"`
+	ServiceLabels         map[string]string           `json:"serviceLabels,omitempty" protobuf:"bytes,11,rep,name=serviceLabels"`
 	Resources             *apiv1.ResourceRequirements `json:"resources,omitempty"`
 	EnvConfig             EnvironmentConfig           `json:"envConfig"`
 	Ports                 []coreV1.ContainerPort      `json:"ports,omitempty"`
