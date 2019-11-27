@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	apiv1 "k8s.io/api/core/v1"
-
+	coreV1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -104,14 +104,17 @@ func (in *FlinkConfig) DeepCopy() *FlinkConfig {
 type JobManagerConfig struct {
 	Resources             *apiv1.ResourceRequirements `json:"resources,omitempty"`
 	EnvConfig             EnvironmentConfig           `json:"envConfig"`
+	Ports                 []coreV1.ContainerPort      `json:"ports,omitempty"`
 	Replicas              *int32                      `json:"replicas,omitempty"`
 	OffHeapMemoryFraction *float64                    `json:"offHeapMemoryFraction,omitempty"`
 	NodeSelector          map[string]string           `json:"nodeSelector,omitempty"`
 }
 
 type TaskManagerConfig struct {
+	Name                  string                      `json:"name"`
 	Resources             *apiv1.ResourceRequirements `json:"resources,omitempty"`
 	EnvConfig             EnvironmentConfig           `json:"envConfig"`
+	Ports                 []coreV1.ContainerPort      `json:"ports,omitempty"`
 	TaskSlots             *int32                      `json:"taskSlots,omitempty"`
 	OffHeapMemoryFraction *float64                    `json:"offHeapMemoryFraction,omitempty"`
 	NodeSelector          map[string]string           `json:"nodeSelector,omitempty"`

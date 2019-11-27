@@ -3,7 +3,7 @@ package flink
 import (
 	"testing"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"

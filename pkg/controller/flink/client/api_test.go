@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
 
 	"github.com/jarcoal/httpmock"
 	mockScope "github.com/lyft/flytestdlib/promutils"
@@ -13,8 +13,8 @@ import (
 
 	"strings"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 )
 
 const testURL = "http://abc.com"

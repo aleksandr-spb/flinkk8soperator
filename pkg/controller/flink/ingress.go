@@ -3,10 +3,10 @@ package flink
 import (
 	"regexp"
 
-	flinkapp "github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
-	"github.com/lyft/flinkk8soperator/pkg/controller/k8"
+	flinkapp "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/k8"
 	"k8s.io/api/extensions/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"

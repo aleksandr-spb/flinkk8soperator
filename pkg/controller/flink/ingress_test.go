@@ -3,7 +3,7 @@ package flink
 import (
 	"testing"
 
-	config2 "github.com/lyft/flinkk8soperator/pkg/controller/config"
+	config2 "github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 	"github.com/stretchr/testify/assert"
 )
 

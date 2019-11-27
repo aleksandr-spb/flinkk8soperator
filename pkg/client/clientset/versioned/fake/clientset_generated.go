@@ -3,9 +3,9 @@
 package fake
 
 import (
-	clientset "github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned"
-	flinkv1beta1 "github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
-	fakeflinkv1beta1 "github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1/fake"
+	clientset "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned"
+	flinkv1beta1 "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
+	fakeflinkv1beta1 "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

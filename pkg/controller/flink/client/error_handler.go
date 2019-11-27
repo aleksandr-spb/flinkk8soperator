@@ -7,7 +7,7 @@ import (
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/clock"

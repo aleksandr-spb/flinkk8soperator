@@ -3,8 +3,8 @@
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/lyft/flinkk8soperator/pkg/apis/app/v1alpha1"
-	"github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1alpha1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/scheme"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
 )

@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
 	"github.com/prometheus/common/log"
 	. "gopkg.in/check.v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"

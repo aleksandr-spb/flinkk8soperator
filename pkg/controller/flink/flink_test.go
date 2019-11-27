@@ -4,19 +4,19 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 
-	"github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned/scheme"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/scheme"
 	"k8s.io/client-go/tools/record"
 
 	"time"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
-	"github.com/lyft/flinkk8soperator/pkg/controller/flink/client"
-	clientMock "github.com/lyft/flinkk8soperator/pkg/controller/flink/client/mock"
-	"github.com/lyft/flinkk8soperator/pkg/controller/flink/mock"
-	k8mock "github.com/lyft/flinkk8soperator/pkg/controller/k8/mock"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/flink/client"
+	clientMock "github.com/aleksandr-spb/flinkk8soperator/pkg/controller/flink/client/mock"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/flink/mock"
+	k8mock "github.com/aleksandr-spb/flinkk8soperator/pkg/controller/k8/mock"
 	mockScope "github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"
 	"github.com/pkg/errors"

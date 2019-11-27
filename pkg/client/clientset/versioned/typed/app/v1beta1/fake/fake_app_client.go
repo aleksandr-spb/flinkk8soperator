@@ -3,7 +3,7 @@
 package fake
 
 import (
-	v1beta1 "github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
+	v1beta1 "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )

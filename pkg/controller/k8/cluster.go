@@ -5,7 +5,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 	"github.com/lyft/flytestdlib/logger"
 	"github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"

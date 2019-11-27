@@ -3,9 +3,9 @@ package mock
 import (
 	"context"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
-	"github.com/lyft/flinkk8soperator/pkg/controller/flink/client"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/flink/client"
 	corev1 "k8s.io/api/core/v1"
 )
 

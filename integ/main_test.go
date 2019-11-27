@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lyft/flinkk8soperator/cmd/flinkk8soperator/cmd"
-	integFramework "github.com/lyft/flinkk8soperator/integ/utils"
-	controllerConfig "github.com/lyft/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/cmd/flinkk8soperator/cmd"
+	integFramework "github.com/aleksandr-spb/flinkk8soperator/integ/utils"
+	controllerConfig "github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 	flyteConfig "github.com/lyft/flytestdlib/config"
 	"github.com/prometheus/common/log"
 	. "gopkg.in/check.v1"

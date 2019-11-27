@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
 
 	"net/http"
 
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 	"github.com/go-resty/resty"
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
 	"github.com/lyft/flytestdlib/logger"
 	"github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"

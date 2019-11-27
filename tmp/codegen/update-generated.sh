@@ -6,7 +6,7 @@ set -o pipefail
 
 vendor/k8s.io/code-generator/generate-groups.sh \
 deepcopy,client \
-github.com/lyft/flinkk8soperator/pkg/client \
-github.com/lyft/flinkk8soperator/pkg/apis \
+github.com/aleksandr-spb/flinkk8soperator/pkg/client \
+github.com/aleksandr-spb/flinkk8soperator/pkg/apis \
 app:v1beta1 \
 --go-header-file "./tmp/codegen/boilerplate.go.txt"

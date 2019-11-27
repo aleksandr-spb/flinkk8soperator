@@ -3,7 +3,7 @@
 package versioned
 
 import (
-	flinkv1beta1 "github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
+	flinkv1beta1 "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

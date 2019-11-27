@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
-	"github.com/lyft/flinkk8soperator/pkg/controller/k8"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/k8"
 	"github.com/lyft/flytestdlib/logger"
 	"github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"
@@ -216,7 +216,7 @@ func getJobManagerServicePorts(app *v1beta1.FlinkApplication) []coreV1.ServicePo
 }
 
 func getJobManagerPorts(app *v1beta1.FlinkApplication) []coreV1.ContainerPort {
-	return []coreV1.ContainerPort{
+	ports := []coreV1.ContainerPort{
 		{
 			Name:          FlinkRPCPortName,
 			ContainerPort: getRPCPort(app),
@@ -238,6 +238,7 @@ func getJobManagerPorts(app *v1beta1.FlinkApplication) []coreV1.ContainerPort {
 			ContainerPort: getInternalMetricsQueryPort(app),
 		},
 	}
+	return append(ports, app.Spec.JobManagerConfig.Ports...)
 }
 
 func FetchJobManagerContainerObj(application *v1beta1.FlinkApplication) *coreV1.Container {

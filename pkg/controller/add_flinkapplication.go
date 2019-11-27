@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/lyft/flinkk8soperator/pkg/controller/flinkapplication"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/flinkapplication"
 )
 
 func init() {

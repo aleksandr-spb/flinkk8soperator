@@ -18,15 +18,15 @@ import (
 	"github.com/lyft/flytestdlib/logger"
 	"github.com/spf13/pflag"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
 	"github.com/spf13/cobra"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller"
-	controllerConfig "github.com/lyft/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller"
+	controllerConfig "github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 	ctrlRuntimeConfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
+	apis "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app"
 	"github.com/kubernetes-sigs/controller-runtime/pkg/runtime/signals"
-	apis "github.com/lyft/flinkk8soperator/pkg/apis/app"
 	"github.com/lyft/flytestdlib/profutils"
 	"github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"

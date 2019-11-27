@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 

@@ -1,11 +1,11 @@
 FROM golang:1.13.0-alpine3.10 as builder
 RUN apk add git openssh-client make curl bash
 
-COPY boilerplate/lyft/golang_test_targets/dep_install.sh /go/src/github.com/lyft/flinkk8soperator/
+COPY boilerplate/lyft/golang_test_targets/dep_install.sh /go/src/github.com/aleksandr-spb/flinkk8soperator/
 
 # COPY only the dep files for efficient caching
-COPY Gopkg.* /go/src/github.com/lyft/flinkk8soperator/
-WORKDIR /go/src/github.com/lyft/flinkk8soperator
+COPY Gopkg.* /go/src/github.com/aleksandr-spb/flinkk8soperator/
+WORKDIR /go/src/github.com/aleksandr-spb/flinkk8soperator
 
 # Pull dependencies
 RUN : \
@@ -13,7 +13,7 @@ RUN : \
   && dep ensure -vendor-only
 
 # COPY the rest of the source code
-COPY . /go/src/github.com/lyft/flinkk8soperator/
+COPY . /go/src/github.com/aleksandr-spb/flinkk8soperator/
 
 # This 'linux_compile' target should compile binaries to the /artifacts directory
 # The main entrypoint should be compiled to /artifacts/flinkk8soperator

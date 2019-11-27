@@ -3,7 +3,7 @@ package mock
 import (
 	"context"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/flink/client"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/flink/client"
 )
 
 type CancelJobWithSavepointFunc func(ctx context.Context, url string, jobID string) (string, error)

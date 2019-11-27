@@ -3,7 +3,7 @@
 package fake
 
 import (
-	v1beta1 "github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
+	v1beta1 "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

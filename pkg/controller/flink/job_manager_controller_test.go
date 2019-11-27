@@ -3,14 +3,14 @@ package flink
 import (
 	"testing"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 
-	k8mock "github.com/lyft/flinkk8soperator/pkg/controller/k8/mock"
+	k8mock "github.com/aleksandr-spb/flinkk8soperator/pkg/controller/k8/mock"
 	mockScope "github.com/lyft/flytestdlib/promutils"
 
 	"context"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
 	"github.com/lyft/flytestdlib/promutils/labeled"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"

@@ -5,8 +5,8 @@ package v1alpha1
 import (
 	"time"
 
-	v1alpha1 "github.com/lyft/flinkk8soperator/pkg/apis/app/v1alpha1"
-	scheme "github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1alpha1"
+	scheme "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"

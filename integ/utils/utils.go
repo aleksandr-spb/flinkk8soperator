@@ -12,9 +12,9 @@ import (
 
 	errors2 "k8s.io/apimachinery/pkg/api/errors"
 
+	flinkapp "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	client "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
 	"github.com/go-resty/resty"
-	flinkapp "github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	client "github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
 	"github.com/prometheus/common/log"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -26,7 +26,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
-	clientset "github.com/lyft/flinkk8soperator/pkg/client/clientset/versioned"
+	clientset "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned"
 )
 
 type TestUtil struct {

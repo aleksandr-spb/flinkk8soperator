@@ -41,4 +41,4 @@ A `FlinkApplication` can be checked using the `kubectl describe flinkapplication
 
 ## Customizing the flink operator
 
-To customize the Flink operator, set/update these [configurations](https://github.com/lyft/flinkk8soperator/blob/master/pkg/controller/config/config.go). The values for config can be set either through a [ConfigMap](/deploy/config.yaml) or through command line.
+To customize the Flink operator, set/update these [configurations](https://github.com/aleksandr-spb/flinkk8soperator/blob/master/pkg/controller/config/config.go). The values for config can be set either through a [ConfigMap](/deploy/config.yaml) or through command line.

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
-	"github.com/lyft/flinkk8soperator/pkg/controller/k8"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/k8"
 	"github.com/lyft/flytestdlib/logger"
 	"github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"
@@ -50,6 +50,8 @@ func newTaskManagerMetrics(scope promutils.Scope) *taskManagerMetrics {
 		scope:                     scope,
 		deploymentCreationSuccess: labeled.NewCounter("deployment_create_success", "Task manager deployment created successfully", taskManagerControllerScope),
 		deploymentCreationFailure: labeled.NewCounter("deployment_create_failure", "Task manager deployment creation failed", taskManagerControllerScope),
+		serviceCreationSuccess:    labeled.NewCounter("service_create_success", "Task manager service created successfully", taskManagerControllerScope),
+		serviceCreationFailure:    labeled.NewCounter("service_create_failure", "Task manager service creation failed", taskManagerControllerScope),
 	}
 }
 
@@ -57,6 +59,8 @@ type taskManagerMetrics struct {
 	scope                     promutils.Scope
 	deploymentCreationSuccess labeled.Counter
 	deploymentCreationFailure labeled.Counter
+	serviceCreationSuccess    labeled.Counter
+	serviceCreationFailure    labeled.Counter
 }
 
 var TaskManagerDefaultResources = coreV1.ResourceRequirements{
@@ -72,6 +76,7 @@ var TaskManagerDefaultResources = coreV1.ResourceRequirements{
 
 func (t *TaskManagerController) CreateIfNotExist(ctx context.Context, application *v1beta1.FlinkApplication) (bool, error) {
 	hash := HashForApplication(application)
+	newlyCreated := false
 
 	taskManagerDeployment := FetchTaskMangerDeploymentCreateObj(application, hash)
 	err := t.k8Cluster.CreateK8Object(ctx, taskManagerDeployment)
@@ -83,15 +88,69 @@ func (t *TaskManagerController) CreateIfNotExist(ctx context.Context, applicatio
 		}
 		logger.Infof(ctx, "Taskmanager deployment already exists")
 	} else {
+		newlyCreated = true
 		t.metrics.deploymentCreationSuccess.Inc(ctx)
-		return true, nil
 	}
 
-	return false, nil
+	// create the generic task manager service, used by monitoring
+	// there will only be one of these across the lifetime of the application
+	genericService := FetchTaskManagerServiceCreateObj(application, hash)
+	err = t.k8Cluster.CreateK8Object(ctx, genericService)
+	if err != nil {
+		if !k8_err.IsAlreadyExists(err) {
+			t.metrics.serviceCreationFailure.Inc(ctx)
+			logger.Errorf(ctx, "Taskmanager service creation failed %v", err)
+			return false, err
+		}
+		logger.Infof(ctx, "Taskmanager service already exists")
+	} else {
+		newlyCreated = true
+		t.metrics.serviceCreationSuccess.Inc(ctx)
+	}
+
+	return newlyCreated, nil
+}
+
+func FetchTaskManagerServiceCreateObj(app *v1beta1.FlinkApplication, hash string) *coreV1.Service {
+	tmServiceName := app.Spec.TaskManagerConfig.Name
+	serviceLabels := getCommonAppLabels(app)
+	serviceLabels[FlinkAppHash] = hash
+	serviceLabels[FlinkDeploymentType] = FlinkDeploymentTypeTaskmanager
+
+	return &coreV1.Service{
+		TypeMeta: metaV1.TypeMeta{
+			APIVersion: coreV1.SchemeGroupVersion.String(),
+			Kind:       k8.Service,
+		},
+		ObjectMeta: metaV1.ObjectMeta{
+			Name:      tmServiceName,
+			Namespace: app.Namespace,
+			OwnerReferences: []metaV1.OwnerReference{
+				*metaV1.NewControllerRef(app, app.GroupVersionKind()),
+			},
+			Labels: getCommonAppLabels(app),
+		},
+		Spec: coreV1.ServiceSpec{
+			Ports:    getTaskManagerServicePorts(app),
+			Selector: serviceLabels,
+		},
+	}
+}
+
+func getTaskManagerServicePorts(app *v1beta1.FlinkApplication) []coreV1.ServicePort {
+	ports := GetTaskManagerPorts(app)
+	servicePorts := make([]coreV1.ServicePort, 0, len(ports))
+	for _, p := range ports {
+		servicePorts = append(servicePorts, coreV1.ServicePort{
+			Name: p.Name,
+			Port: p.ContainerPort,
+		})
+	}
+	return servicePorts
 }
 
 func GetTaskManagerPorts(app *v1beta1.FlinkApplication) []coreV1.ContainerPort {
-	return []coreV1.ContainerPort{
+	ports := []coreV1.ContainerPort{
 		{
 			Name:          FlinkRPCPortName,
 			ContainerPort: getRPCPort(app),
@@ -109,6 +168,7 @@ func GetTaskManagerPorts(app *v1beta1.FlinkApplication) []coreV1.ContainerPort {
 			ContainerPort: getInternalMetricsQueryPort(app),
 		},
 	}
+	return append(ports, app.Spec.TaskManagerConfig.Ports...)
 }
 
 func FetchTaskManagerContainerObj(application *v1beta1.FlinkApplication) *coreV1.Container {

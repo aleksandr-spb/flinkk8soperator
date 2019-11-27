@@ -9,14 +9,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
 
-	controllerConfig "github.com/lyft/flinkk8soperator/pkg/controller/config"
+	controllerConfig "github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 	"github.com/lyft/flytestdlib/logger"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/flink/client"
-	"github.com/lyft/flinkk8soperator/pkg/controller/k8"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/flink/client"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/k8"
 	"github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"
 	v1 "k8s.io/api/apps/v1"

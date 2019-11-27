@@ -1,9 +1,9 @@
 # Flink Application Custom Resource Definition
-The [flinkapplication](https://github.com/lyft/flinkk8soperator/blob/master/deploy/crd.yaml) is a [kubernetes custom resource](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/). Once the *flinkapplication* custom resource is created in Kubernetes, the FlinkK8sOperator watches the resource and tries to move it through a series of states until the desired state is reached.
+The [flinkapplication](https://github.com/aleksandr-spb/flinkk8soperator/blob/master/deploy/crd.yaml) is a [kubernetes custom resource](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/). Once the *flinkapplication* custom resource is created in Kubernetes, the FlinkK8sOperator watches the resource and tries to move it through a series of states until the desired state is reached.
 
-[FlinkApplication Custom Resource Example](https://github.com/lyft/flinkk8soperator/blob/master/examples/wordcount/flink-operator-custom-resource.yaml)
+[FlinkApplication Custom Resource Example](https://github.com/aleksandr-spb/flinkk8soperator/blob/master/examples/wordcount/flink-operator-custom-resource.yaml)
 
-The type information is available here [FlinkApplication Type](https://github.com/lyft/flinkk8soperator/blob/master/pkg/apis/app/v1beta1/types.go#L25)
+The type information is available here [FlinkApplication Type](https://github.com/aleksandr-spb/flinkk8soperator/blob/master/pkg/apis/app/v1beta1/types.go#L25)
 
 Below is the list of fields in the custom resource and their description
 

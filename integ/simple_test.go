@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/flink/client"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/flink/client"
 	"github.com/prometheus/common/log"
 	. "gopkg.in/check.v1"
 	corev1 "k8s.io/api/core/v1"

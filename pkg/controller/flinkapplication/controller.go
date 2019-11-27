@@ -6,13 +6,13 @@ import (
 	"github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/config"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	"time"
 
-	"github.com/lyft/flinkk8soperator/pkg/controller/k8"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/k8"
 	"github.com/lyft/flytestdlib/contextutils"
 	"github.com/lyft/flytestdlib/logger"
 	v1 "k8s.io/api/apps/v1"

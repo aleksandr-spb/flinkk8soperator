@@ -3,17 +3,18 @@ package flink
 import (
 	"testing"
 
-	k8mock "github.com/lyft/flinkk8soperator/pkg/controller/k8/mock"
+	k8mock "github.com/aleksandr-spb/flinkk8soperator/pkg/controller/k8/mock"
 	mockScope "github.com/lyft/flytestdlib/promutils"
 
 	"context"
 
-	"github.com/lyft/flinkk8soperator/pkg/apis/app/v1beta1"
-	"github.com/lyft/flinkk8soperator/pkg/controller/common"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common"
 	"github.com/lyft/flytestdlib/promutils/labeled"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/apps/v1"
+	coreV1 "k8s.io/api/core/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -68,27 +69,36 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 		"flink-app-hash":        hash,
 		"flink-deployment-type": "taskmanager",
 	}
+	ctr := 0
 	mockK8Cluster := testController.k8Cluster.(*k8mock.K8Cluster)
 	mockK8Cluster.CreateK8ObjectFunc = func(ctx context.Context, object runtime.Object) error {
-		deployment := object.(*v1.Deployment)
-		assert.Equal(t, getTaskManagerName(&app, hash), deployment.Name)
-		assert.Equal(t, app.Namespace, deployment.Namespace)
-		assert.Equal(t, getTaskManagerPodName(&app, hash), deployment.Spec.Template.Name)
-		assert.Equal(t, annotations, deployment.Annotations)
-		assert.Equal(t, annotations, deployment.Spec.Template.Annotations)
-		assert.Equal(t, app.Namespace, deployment.Spec.Template.Namespace)
-		assert.Equal(t, expectedLabels, deployment.Labels)
+		ctr++
+		switch ctr {
+		case 1:
+			deployment := object.(*v1.Deployment)
+			assert.Equal(t, getTaskManagerName(&app, hash), deployment.Name)
+			assert.Equal(t, app.Namespace, deployment.Namespace)
+			assert.Equal(t, getTaskManagerPodName(&app, hash), deployment.Spec.Template.Name)
+			assert.Equal(t, annotations, deployment.Annotations)
+			assert.Equal(t, annotations, deployment.Spec.Template.Annotations)
+			assert.Equal(t, app.Namespace, deployment.Spec.Template.Namespace)
+			assert.Equal(t, expectedLabels, deployment.Labels)
 
-		assert.Equal(t, "blob.server.port: 6125\njobmanager.heap.size: 1572864k\n"+
-			"jobmanager.rpc.port: 6123\n"+
-			"jobmanager.web.port: 8081\nmetrics.internal.query-service.port: 50101\n"+
-			"query.server.port: 6124\ntaskmanager.heap.size: 524288k\n"+
-			"taskmanager.numberOfTaskSlots: 16\n\n"+
-			"jobmanager.rpc.address: app-name-"+hash+"\n"+
-			"taskmanager.host: $HOST_IP\n",
-			common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
-				"OPERATOR_FLINK_CONFIG").Value)
-
+			assert.Equal(t, "blob.server.port: 6125\njobmanager.heap.size: 1572864k\n"+
+				"jobmanager.rpc.port: 6123\n"+
+				"jobmanager.web.port: 8081\nmetrics.internal.query-service.port: 50101\n"+
+				"query.server.port: 6124\ntaskmanager.heap.size: 524288k\n"+
+				"taskmanager.numberOfTaskSlots: 16\n\n"+
+				"jobmanager.rpc.address: app-name-"+hash+"\n"+
+				"taskmanager.host: $HOST_IP\n",
+				common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
+					"OPERATOR_FLINK_CONFIG").Value)
+		case 2:
+			service := object.(*coreV1.Service)
+			assert.Equal(t, app.Spec.TaskManagerConfig.Name, service.Name)
+			assert.Equal(t, app.Namespace, service.Namespace)
+			assert.Equal(t, map[string]string{"flink-app": "app-name", "flink-app-hash": hash, "flink-deployment-type": "taskmanager"}, service.Spec.Selector)
+		}
 		return nil
 	}
 	newlyCreated, err := testController.CreateIfNotExist(context.Background(), &app)
@@ -117,26 +127,36 @@ func TestTaskManagerHACreateSuccess(t *testing.T) {
 		"flink-app-hash":        hash,
 		"flink-deployment-type": "taskmanager",
 	}
+	ctr := 0
 	mockK8Cluster := testController.k8Cluster.(*k8mock.K8Cluster)
 	mockK8Cluster.CreateK8ObjectFunc = func(ctx context.Context, object runtime.Object) error {
-		deployment := object.(*v1.Deployment)
-		assert.Equal(t, getTaskManagerName(&app, hash), deployment.Name)
-		assert.Equal(t, app.Namespace, deployment.Namespace)
-		assert.Equal(t, getTaskManagerPodName(&app, hash), deployment.Spec.Template.Name)
-		assert.Equal(t, annotations, deployment.Annotations)
-		assert.Equal(t, annotations, deployment.Spec.Template.Annotations)
-		assert.Equal(t, app.Namespace, deployment.Spec.Template.Namespace)
-		assert.Equal(t, expectedLabels, deployment.Labels)
+		ctr++
+		switch ctr {
+		case 1:
+			deployment := object.(*v1.Deployment)
+			assert.Equal(t, getTaskManagerName(&app, hash), deployment.Name)
+			assert.Equal(t, app.Namespace, deployment.Namespace)
+			assert.Equal(t, getTaskManagerPodName(&app, hash), deployment.Spec.Template.Name)
+			assert.Equal(t, annotations, deployment.Annotations)
+			assert.Equal(t, annotations, deployment.Spec.Template.Annotations)
+			assert.Equal(t, app.Namespace, deployment.Spec.Template.Namespace)
+			assert.Equal(t, expectedLabels, deployment.Labels)
 
-		assert.Equal(t, "blob.server.port: 6125\nhigh-availability: zookeeper\njobmanager.heap.size: 1572864k\n"+
-			"jobmanager.rpc.port: 6123\n"+
-			"jobmanager.web.port: 8081\nmetrics.internal.query-service.port: 50101\n"+
-			"query.server.port: 6124\ntaskmanager.heap.size: 524288k\n"+
-			"taskmanager.numberOfTaskSlots: 16\n\n"+
-			"high-availability.cluster-id: app-name-"+hash+"\n"+
-			"taskmanager.host: $HOST_IP\n",
-			common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
-				"OPERATOR_FLINK_CONFIG").Value)
+			assert.Equal(t, "blob.server.port: 6125\nhigh-availability: zookeeper\njobmanager.heap.size: 1572864k\n"+
+				"jobmanager.rpc.port: 6123\n"+
+				"jobmanager.web.port: 8081\nmetrics.internal.query-service.port: 50101\n"+
+				"query.server.port: 6124\ntaskmanager.heap.size: 524288k\n"+
+				"taskmanager.numberOfTaskSlots: 16\n\n"+
+				"high-availability.cluster-id: app-name-"+hash+"\n"+
+				"taskmanager.host: $HOST_IP\n",
+				common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
+					"OPERATOR_FLINK_CONFIG").Value)
+		case 2:
+			service := object.(*coreV1.Service)
+			assert.Equal(t, app.Spec.TaskManagerConfig.Name, service.Name)
+			assert.Equal(t, app.Namespace, service.Namespace)
+			assert.Equal(t, map[string]string{"flink-app": "app-name", "flink-app-hash": hash, "flink-deployment-type": "taskmanager"}, service.Spec.Selector)
+		}
 
 		return nil
 	}

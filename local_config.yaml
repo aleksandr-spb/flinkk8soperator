@@ -10,7 +10,7 @@ operator:
   proxyPort: 8001
   baseBackoffDuration: 100ms
   maxBackoffDuration: 30s
-  maxErrDuration: 1m
+  maxErrDuration: 5m
 logger:
   show-source: true
   level: 5
