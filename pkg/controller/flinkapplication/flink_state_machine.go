@@ -410,8 +410,9 @@ func (s *FlinkStateMachine) submitJobIfNeeded(ctx context.Context, app *v1beta1.
 	}
 }
 
-func (s *FlinkStateMachine) updateGenericService(ctx context.Context, app *v1beta1.FlinkApplication, newHash string) error {
-	service, err := s.k8Cluster.GetService(ctx, app.Namespace, app.Name)
+func (s *FlinkStateMachine) updateGenericService(ctx context.Context,
+	namespace string, name string, newHash string) error {
+	service, err := s.k8Cluster.GetService(ctx, namespace, name)
 	if err != nil {
 		return err
 	}
@@ -443,11 +444,14 @@ func (s *FlinkStateMachine) handleSubmittingJob(ctx context.Context, app *v1beta
 		return statusChanged, nil
 	}
 
-	// switch the service to point to the new jobmanager
+	// switch the service to point to the new jobmanager and generic taskmanager
 	hash := flink.HashForApplication(app)
-	err := s.updateGenericService(ctx, app, hash)
-	if err != nil {
-		return statusUnchanged, err
+	serviceNames := []string{flink.GetTaskManagerGenericServiceName(app), app.Name}
+	for _, serviceName := range serviceNames {
+		err := s.updateGenericService(ctx, app.Namespace, serviceName, hash)
+		if err != nil {
+			return statusUnchanged, err
+		}
 	}
 
 	// Update status of the cluster
@@ -530,9 +534,12 @@ func (s *FlinkStateMachine) handleRollingBack(ctx context.Context, app *v1beta1.
 	//       so that we never have two jobs running at once.
 
 	// update the service to point back to the old deployment if needed
-	err := s.updateGenericService(ctx, app, app.Status.DeployHash)
-	if err != nil {
-		return statusUnchanged, err
+	serviceNames := []string{flink.GetTaskManagerGenericServiceName(app), app.Name}
+	for _, serviceName := range serviceNames {
+		err := s.updateGenericService(ctx, app.Namespace, serviceName, app.Status.DeployHash)
+		if err != nil {
+			return statusUnchanged, err
+		}
 	}
 
 	// wait until the service is ready

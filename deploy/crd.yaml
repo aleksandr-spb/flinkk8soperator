@@ -94,6 +94,11 @@ spec:
             jobManagerConfig:
               type: object
               properties:
+                serviceLabels:
+                  type: object
+                  properties:
+                    additionalProperties:
+                      type: string
                 replicas:
                   type: integer
                   minimum: 1
@@ -185,6 +190,20 @@ spec:
                             type: object
                         type: object
                       type: array
+                ports:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      containerPort:
+                        type: integer
+                        minimum: 1
+                        maximum: 65535
+                    required:
+                      - name
+                      - containerPort
                 resources:
                   type: object
                   properties:
@@ -221,6 +240,11 @@ spec:
             taskManagerConfig:
               type: object
               properties:
+                serviceLabels:
+                  type: object
+                  properties:
+                    additionalProperties:
+                      type: string
                 taskSlots:
                   type: integer
                   minimum: 1
@@ -312,6 +336,20 @@ spec:
                             type: object
                         type: object
                       type: array
+                ports:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                       name:
+                         type: string
+                       containerPort:
+                         type: integer
+                         minimum: 1
+                         maximum: 65535
+                    required:
+                      - name
+                      - containerPort
                 resources:
                   type: object
                   properties:

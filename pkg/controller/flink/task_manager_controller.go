@@ -113,7 +113,7 @@ func (t *TaskManagerController) CreateIfNotExist(ctx context.Context, applicatio
 }
 
 func FetchTaskManagerServiceCreateObj(app *v1beta1.FlinkApplication, hash string) *coreV1.Service {
-	tmServiceName := fmt.Sprintf(TaskManagerServiceNameFormat, app.Name)
+	tmServiceName := GetTaskManagerGenericServiceName(app)
 	serviceLabels := getCommonAppLabels(app)
 	serviceLabels[FlinkAppHash] = hash
 	serviceLabels[FlinkDeploymentType] = FlinkDeploymentTypeTaskmanager
@@ -136,6 +136,10 @@ func FetchTaskManagerServiceCreateObj(app *v1beta1.FlinkApplication, hash string
 			Selector: serviceLabels,
 		},
 	}
+}
+
+func GetTaskManagerGenericServiceName(app *v1beta1.FlinkApplication) string {
+	return fmt.Sprintf(TaskManagerServiceNameFormat, app.Name)
 }
 
 func getTaskManagerServicePorts(app *v1beta1.FlinkApplication) []coreV1.ServicePort {

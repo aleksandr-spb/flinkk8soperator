@@ -329,7 +329,7 @@ func TestSubmittingToRunning(t *testing.T) {
 	getServiceCount := 0
 	mockK8Cluster.GetServiceFunc = func(ctx context.Context, namespace string, name string) (*v1.Service, error) {
 		assert.Equal(t, "flink", namespace)
-		assert.Equal(t, "test-app", name)
+		assert.Contains(t, [2]string{"test-app", "test-app-taskmanager"}, name)
 
 		hash := "old-hash"
 		if getServiceCount > 0 {
@@ -339,8 +339,8 @@ func TestSubmittingToRunning(t *testing.T) {
 		getServiceCount++
 		return &v1.Service{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "test-app",
-				Namespace: "flink",
+				Name:      name,
+				Namespace: namespace,
 			},
 			Spec: v1.ServiceSpec{
 				Selector: map[string]string{
@@ -553,7 +553,7 @@ func TestRollingBack(t *testing.T) {
 	getServiceCount := 0
 	mockK8Cluster.GetServiceFunc = func(ctx context.Context, namespace string, name string) (*v1.Service, error) {
 		assert.Equal(t, "flink", namespace)
-		assert.Equal(t, "test-app", name)
+		assert.Contains(t, [2]string{"test-app", "test-app-taskmanager"}, name)
 
 		hash := appHash
 		if getServiceCount > 0 {
@@ -563,8 +563,8 @@ func TestRollingBack(t *testing.T) {
 		getServiceCount++
 		return &v1.Service{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "test-app",
-				Namespace: "flink",
+				Name:      name,
+				Namespace: namespace,
 			},
 			Spec: v1.ServiceSpec{
 				Selector: map[string]string{
