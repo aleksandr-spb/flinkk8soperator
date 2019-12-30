@@ -140,7 +140,7 @@ func (c *FlinkJobManagerClient) GetClusterOverview(ctx context.Context, url stri
 	}
 	if response != nil && !response.IsSuccess() {
 		c.metrics.getClusterFailureCounter.Inc(ctx)
-		if response.StatusCode() != int(http.StatusNotFound) || response.StatusCode() != int(http.StatusServiceUnavailable) {
+		if response.StatusCode() != int(http.StatusNotFound) && response.StatusCode() != int(http.StatusServiceUnavailable) {
 			logger.Errorf(ctx, fmt.Sprintf("Get cluster overview failed with response %v", response))
 		}
 		return nil, GetRetryableError(err, v1beta1.GetClusterOverview, response.Status(), DefaultRetries)
@@ -211,6 +211,7 @@ func (c *FlinkJobManagerClient) ForceCancelJob(ctx context.Context, url string, 
 	response, err := c.executeRequest(ctx, httpPatch, url, nil)
 	if err != nil {
 		c.metrics.forceCancelJobFailureCounter.Inc(ctx)
+		logger.Errorf(ctx, fmt.Sprintf("Force cancel job failed with error %v", err))
 		return GetRetryableError(err, v1beta1.ForceCancelJob, GlobalFailure, DefaultRetries)
 	}
 	if response != nil && !response.IsSuccess() {

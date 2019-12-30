@@ -15,6 +15,9 @@ import (
 	flinkapp "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
 	client "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
 	"github.com/go-resty/resty"
+	flinkapp "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
+	clientset "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned"
+	client "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
 	"github.com/prometheus/common/log"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -25,8 +28,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-
-	clientset "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned"
 )
 
 type TestUtil struct {
@@ -142,7 +143,7 @@ func (f *TestUtil) CreateCRD() error {
 func (f *TestUtil) CreateOperator() error {
 	configValue := make(map[string]string)
 	configValue["development"] = "operator:\n  containerNameFormat: \"%s-unknown\"\n  resyncPeriod: 5s\n" +
-		"  baseBackoffDuration: 50ms\n  maxBackoffDuration: 2s\n  maxErrDuration: 40s\n" +
+		"  baseBackoffDuration: 50ms\n  maxBackoffDuration: 2s\n  maxErrDuration: 90s\n" +
 		"logger:\n  formatter:\n    type: text\n"
 
 	configMap := v1.ConfigMap{
