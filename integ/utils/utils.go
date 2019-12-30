@@ -13,11 +13,9 @@ import (
 	errors2 "k8s.io/apimachinery/pkg/api/errors"
 
 	flinkapp "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
-	client "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
-	"github.com/go-resty/resty"
-	flinkapp "github.com/aleksandr-spb/flinkk8soperator/pkg/apis/app/v1beta1"
 	clientset "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned"
 	client "github.com/aleksandr-spb/flinkk8soperator/pkg/client/clientset/versioned/typed/app/v1beta1"
+	"github.com/go-resty/resty"
 	"github.com/prometheus/common/log"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
