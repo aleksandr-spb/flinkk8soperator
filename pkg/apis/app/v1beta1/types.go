@@ -32,6 +32,7 @@ type FlinkApplicationSpec struct {
 	ImagePullPolicy    apiv1.PullPolicy             `json:"imagePullPolicy,omitempty" protobuf:"bytes,14,opt,name=imagePullPolicy,casttype=PullPolicy"`
 	ImagePullSecrets   []apiv1.LocalObjectReference `json:"imagePullSecrets,omitempty" patchStrategy:"merge" patchMergeKey:"name" protobuf:"bytes,15,rep,name=imagePullSecrets"`
 	ServiceAccountName string                       `json:"serviceAccountName,omitempty"`
+	SecurityContext    *apiv1.PodSecurityContext    `json:"securityContext,omitempty"`
 	FlinkConfig        FlinkConfig                  `json:"flinkConfig"`
 	FlinkVersion       string                       `json:"flinkVersion"`
 	TaskManagerConfig  TaskManagerConfig            `json:"taskManagerConfig,omitempty"`
@@ -156,10 +157,12 @@ type FlinkJobStatus struct {
 	JobRestartCount          int32        `json:"jobRestartCount,omitempty"`
 	CompletedCheckpointCount int32        `json:"completedCheckpointCount,omitempty"`
 	FailedCheckpointCount    int32        `json:"failedCheckpointCount,omitempty"`
-	LastCheckpointTime       *metav1.Time `json:"lastCheckpointTime,omitempty"`
 	RestorePath              string       `json:"restorePath,omitempty"`
 	RestoreTime              *metav1.Time `json:"restoreTime,omitempty"`
 	LastFailingTime          *metav1.Time `json:"lastFailingTime,omitempty"`
+
+	LastCheckpointPath string       `json:"lastCheckpoint,omitempty"`
+	LastCheckpointTime *metav1.Time `json:"lastCheckpointTime,omitempty"`
 
 	RunningTasks int32 `json:"runningTasks,omitempty"`
 	TotalTasks   int32 `json:"totalTasks,omitempty"`
@@ -220,6 +223,7 @@ const (
 	FlinkApplicationRunning         FlinkApplicationPhase = "Running"
 	FlinkApplicationSavepointing    FlinkApplicationPhase = "Savepointing"
 	FlinkApplicationDeleting        FlinkApplicationPhase = "Deleting"
+	FlinkApplicationRecovering      FlinkApplicationPhase = "Recovering"
 	FlinkApplicationRollingBackJob  FlinkApplicationPhase = "RollingBackJob"
 	FlinkApplicationDeployFailed    FlinkApplicationPhase = "DeployFailed"
 )
@@ -232,6 +236,7 @@ var FlinkApplicationPhases = []FlinkApplicationPhase{
 	FlinkApplicationRunning,
 	FlinkApplicationSavepointing,
 	FlinkApplicationDeleting,
+	FlinkApplicationRecovering,
 	FlinkApplicationDeployFailed,
 	FlinkApplicationRollingBackJob,
 }
