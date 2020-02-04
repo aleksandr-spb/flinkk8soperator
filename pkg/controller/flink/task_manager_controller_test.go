@@ -161,11 +161,11 @@ func TestTaskManagerHACreateSuccess(t *testing.T) {
 				"taskmanager.host: $HOST_IP\n",
 				common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
 					"FLINK_PROPERTIES").Value)
-		// backward compatibility: https://github.com/lyft/flinkk8soperator/issues/135
-		assert.Equal(t, common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
-			"FLINK_PROPERTIES").Value,
-			common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
-				"OPERATOR_FLINK_CONFIG").Value)
+			// backward compatibility: https://github.com/lyft/flinkk8soperator/issues/135
+			assert.Equal(t, common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
+				"FLINK_PROPERTIES").Value,
+				common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
+					"OPERATOR_FLINK_CONFIG").Value)
 		case 2:
 			service := object.(*coreV1.Service)
 			assert.Equal(t, app.Name+"-taskmanager", service.Name)
@@ -201,19 +201,23 @@ func TestTaskManagerSecurityContextAssignment(t *testing.T) {
 
 	hash := "c06b960b"
 
+	ctr := 0
 	mockK8Cluster := testController.k8Cluster.(*k8mock.K8Cluster)
 	mockK8Cluster.CreateK8ObjectFunc = func(ctx context.Context, object runtime.Object) error {
-		deployment := object.(*v1.Deployment)
-		assert.Equal(t, getTaskManagerName(&app, hash), deployment.Name)
+		ctr++
+		switch ctr {
+		case 1:
+			deployment := object.(*v1.Deployment)
+			assert.Equal(t, getTaskManagerName(&app, hash), deployment.Name)
 
-		appSc := app.Spec.SecurityContext
-		depSc := deployment.Spec.Template.Spec.SecurityContext
+			appSc := app.Spec.SecurityContext
+			depSc := deployment.Spec.Template.Spec.SecurityContext
 
-		assert.Equal(t, *appSc.FSGroup, *depSc.FSGroup)
-		assert.Equal(t, *appSc.RunAsUser, *depSc.RunAsUser)
-		assert.Equal(t, *appSc.RunAsGroup, *depSc.RunAsGroup)
-		assert.Equal(t, *appSc.RunAsNonRoot, *depSc.RunAsNonRoot)
-
+			assert.Equal(t, *appSc.FSGroup, *depSc.FSGroup)
+			assert.Equal(t, *appSc.RunAsUser, *depSc.RunAsUser)
+			assert.Equal(t, *appSc.RunAsGroup, *depSc.RunAsGroup)
+			assert.Equal(t, *appSc.RunAsNonRoot, *depSc.RunAsNonRoot)
+		}
 		return nil
 	}
 	newlyCreated, err := testController.CreateIfNotExist(context.Background(), &app)
