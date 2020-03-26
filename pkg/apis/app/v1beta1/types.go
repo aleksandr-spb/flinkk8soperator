@@ -44,6 +44,7 @@ type FlinkApplicationSpec struct {
 	// Deprecated: use SavepointPath instead
 	SavepointInfo                  SavepointInfo       `json:"savepointInfo,omitempty"`
 	SavepointPath                  string              `json:"savepointPath,omitempty"`
+	SavepointDisabled              bool                `json:"savepointDisabled"`
 	DeploymentMode                 DeploymentMode      `json:"deploymentMode,omitempty"`
 	RPCPort                        *int32              `json:"rpcPort,omitempty"`
 	BlobPort                       *int32              `json:"blobPort,omitempty"`
@@ -111,6 +112,7 @@ type JobManagerConfig struct {
 	Replicas              *int32                      `json:"replicas,omitempty"`
 	OffHeapMemoryFraction *float64                    `json:"offHeapMemoryFraction,omitempty"`
 	NodeSelector          map[string]string           `json:"nodeSelector,omitempty"`
+	Tolerations           []apiv1.Toleration          `json:"tolerations,omitempty"`
 }
 
 type TaskManagerConfig struct {
@@ -121,6 +123,7 @@ type TaskManagerConfig struct {
 	TaskSlots             *int32                      `json:"taskSlots,omitempty"`
 	OffHeapMemoryFraction *float64                    `json:"offHeapMemoryFraction,omitempty"`
 	NodeSelector          map[string]string           `json:"nodeSelector,omitempty"`
+	Tolerations           []apiv1.Toleration          `json:"tolerations,omitempty"`
 }
 
 type EnvironmentConfig struct {
@@ -222,6 +225,7 @@ const (
 	FlinkApplicationSubmittingJob   FlinkApplicationPhase = "SubmittingJob"
 	FlinkApplicationRunning         FlinkApplicationPhase = "Running"
 	FlinkApplicationSavepointing    FlinkApplicationPhase = "Savepointing"
+	FlinkApplicationCancelling      FlinkApplicationPhase = "Cancelling"
 	FlinkApplicationDeleting        FlinkApplicationPhase = "Deleting"
 	FlinkApplicationRecovering      FlinkApplicationPhase = "Recovering"
 	FlinkApplicationRollingBackJob  FlinkApplicationPhase = "RollingBackJob"
@@ -235,6 +239,7 @@ var FlinkApplicationPhases = []FlinkApplicationPhase{
 	FlinkApplicationSubmittingJob,
 	FlinkApplicationRunning,
 	FlinkApplicationSavepointing,
+	FlinkApplicationCancelling,
 	FlinkApplicationDeleting,
 	FlinkApplicationRecovering,
 	FlinkApplicationDeployFailed,

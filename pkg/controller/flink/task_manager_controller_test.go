@@ -56,6 +56,12 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 	app.Spec.JarName = testJarName
 	app.Spec.EntryClass = testEntryClass
 	app.Spec.ProgramArgs = testProgramArgs
+	app.Spec.TaskManagerConfig.Tolerations = []coreV1.Toleration{{
+		Key:      "key",
+		Operator: "Equal",
+		Value:    "Value",
+		Effect:   "NoSchedule",
+	}}
 	app.Spec.TaskManagerConfig.ServiceLabels = map[string]string{
 		"label-one": "1",
 		"label-two": "2",
@@ -65,7 +71,7 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 		"flink-job-properties": "jarName: test.jar\nparallelism: 8\nentryClass:com.test.MainClass\nprogramArgs:\"--test\"",
 	}
 
-	hash := "c3c0af0b"
+	hash := "6b5e9b61"
 
 	app.Annotations = annotations
 	expectedLabels := map[string]string{
@@ -92,6 +98,7 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 			assert.Equal(t, annotations, deployment.Spec.Template.Annotations)
 			assert.Equal(t, app.Namespace, deployment.Spec.Template.Namespace)
 			assert.Equal(t, expectedLabels, deployment.Labels)
+			assert.Equal(t, app.Spec.TaskManagerConfig.Tolerations, deployment.Spec.Template.Spec.Tolerations)
 
 			assert.Equal(t, "blob.server.port: 6125\njobmanager.heap.size: 1572864k\n"+
 				"jobmanager.rpc.port: 6123\n"+

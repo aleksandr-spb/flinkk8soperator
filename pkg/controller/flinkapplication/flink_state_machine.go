@@ -174,6 +174,8 @@ func (s *FlinkStateMachine) handle(ctx context.Context, application *v1beta1.Fli
 			updateApplication, appErr = s.handleSubmittingJob(ctx, application)
 		case v1beta1.FlinkApplicationRunning, v1beta1.FlinkApplicationDeployFailed:
 			updateApplication, appErr = s.handleApplicationRunning(ctx, application)
+		case v1beta1.FlinkApplicationCancelling:
+			updateApplication, appErr = s.handleApplicationCancelling(ctx, application)
 		case v1beta1.FlinkApplicationSavepointing:
 			updateApplication, appErr = s.handleApplicationSavepointing(ctx, application)
 		case v1beta1.FlinkApplicationRecovering:
@@ -231,7 +233,7 @@ func (s *FlinkStateMachine) handleNewOrUpdating(ctx context.Context, application
 		// we've failed to make progress; move to deploy failed
 		s.flinkController.LogEvent(ctx, application, corev1.EventTypeWarning, "ClusterCreationFailed",
 			fmt.Sprintf("Failed to create Flink Cluster: %s", reason))
-		return s.deployFailed(ctx, application)
+		return s.deployFailed(application)
 	}
 
 	// Create the Flink cluster
@@ -245,10 +247,8 @@ func (s *FlinkStateMachine) handleNewOrUpdating(ctx context.Context, application
 	return statusChanged, nil
 }
 
-func (s *FlinkStateMachine) deployFailed(ctx context.Context, app *v1beta1.FlinkApplication) (bool, error) {
+func (s *FlinkStateMachine) deployFailed(app *v1beta1.FlinkApplication) (bool, error) {
 	hash := flink.HashForApplication(app)
-	s.flinkController.LogEvent(ctx, app, corev1.EventTypeWarning, "RolledBackDeploy",
-		fmt.Sprintf("Successfully rolled back deploy %s", hash))
 	app.Status.FailedDeployHash = hash
 	// set rollbackHash to deployHash
 	app.Status.RollbackHash = app.Status.DeployHash
@@ -268,7 +268,7 @@ func (s *FlinkStateMachine) handleClusterStarting(ctx context.Context, applicati
 		s.flinkController.LogEvent(ctx, application, corev1.EventTypeWarning, "ClusterCreationFailed",
 			fmt.Sprintf(
 				"Flink cluster failed to become available: %s", reason))
-		return s.deployFailed(ctx, application)
+		return s.deployFailed(application)
 	}
 
 	// Wait for all to be running
@@ -285,14 +285,17 @@ func (s *FlinkStateMachine) handleClusterStarting(ctx context.Context, applicati
 
 	logger.Infof(ctx, "Flink cluster has started successfully")
 	// TODO: in single mode move to submitting job
-	s.updateApplicationPhase(application, v1beta1.FlinkApplicationSavepointing)
+	if application.Spec.SavepointDisabled {
+		s.updateApplicationPhase(application, v1beta1.FlinkApplicationCancelling)
+	} else {
+		s.updateApplicationPhase(application, v1beta1.FlinkApplicationSavepointing)
+	}
 	return statusChanged, nil
 }
 
 func (s *FlinkStateMachine) handleApplicationSavepointing(ctx context.Context, application *v1beta1.FlinkApplication) (bool, error) {
 	// we've already savepointed (or this is our first deploy), continue on
 	if application.Status.SavepointPath != "" || application.Status.DeployHash == "" {
-		application.Status.JobStatus.JobID = ""
 		s.updateApplicationPhase(application, v1beta1.FlinkApplicationSubmittingJob)
 		return statusChanged, nil
 	}
@@ -349,6 +352,41 @@ func (s *FlinkStateMachine) handleApplicationSavepointing(ctx context.Context, a
 	return statusUnchanged, nil
 }
 
+func (s *FlinkStateMachine) handleApplicationCancelling(ctx context.Context, application *v1beta1.FlinkApplication) (bool, error) {
+
+	// this is the first deploy
+	if application.Status.DeployHash == "" {
+		s.updateApplicationPhase(application, v1beta1.FlinkApplicationSubmittingJob)
+		return statusChanged, nil
+	}
+
+	if rollback, reason := s.shouldRollback(ctx, application); rollback {
+		s.flinkController.LogEvent(ctx, application, corev1.EventTypeWarning, "CancelFailed",
+			fmt.Sprintf("Could not cancel existing job: %s", reason))
+		application.Status.RetryCount = 0
+		application.Status.JobStatus.JobID = ""
+		s.updateApplicationPhase(application, v1beta1.FlinkApplicationRollingBackJob)
+		return statusChanged, nil
+	}
+
+	job, err := s.flinkController.GetJobForApplication(ctx, application, application.Status.DeployHash)
+	if err != nil {
+		return statusUnchanged, err
+	}
+
+	if job != nil && job.State != client.Canceled &&
+		job.State != client.Failed {
+		err := s.flinkController.ForceCancel(ctx, application, application.Status.DeployHash)
+		if err != nil {
+			return statusUnchanged, err
+		}
+	}
+
+	application.Status.JobStatus.JobID = ""
+	s.updateApplicationPhase(application, v1beta1.FlinkApplicationSubmittingJob)
+	return statusChanged, nil
+}
+
 func (s *FlinkStateMachine) handleApplicationRecovering(ctx context.Context, app *v1beta1.FlinkApplication) (bool, error) {
 	// we're in the middle of a deploy, and savepointing has failed in some way... we're going to try to recover
 	// and push through if possible
@@ -366,11 +404,16 @@ func (s *FlinkStateMachine) handleApplicationRecovering(ctx context.Context, app
 	// try to find an externalized checkpoint
 	path, err := s.flinkController.FindExternalizedCheckpoint(ctx, app, app.Status.DeployHash)
 	if err != nil {
-		logger.Infof(ctx, "error while fetching externalized checkpoint path: %v", err)
-		return s.deployFailed(ctx, app)
+		s.flinkController.LogEvent(ctx, app, corev1.EventTypeWarning, "RecoveryFailed",
+			"Failed to get externalized checkpoint config, could not recover. "+
+				"Manual intervention is needed.")
+		return s.deployFailed(app)
 	} else if path == "" {
-		logger.Infof(ctx, "no externalized checkpoint found")
-		return s.deployFailed(ctx, app)
+		s.flinkController.LogEvent(ctx, app, corev1.EventTypeWarning, "RecoveryFailed",
+			"No externalized checkpoint found, could not recover. Make sure that "+
+				"externalized checkpoints are enabled in your job's checkpoint configuration. Manual intervention "+
+				"is needed to recover.")
+		return s.deployFailed(app)
 	}
 
 	s.flinkController.LogEvent(ctx, app, corev1.EventTypeNormal, "RestoringExternalizedCheckpoint",
@@ -461,6 +504,7 @@ func (s *FlinkStateMachine) handleSubmittingJob(ctx context.Context, app *v1beta
 		// Something's gone wrong; roll back
 		s.flinkController.LogEvent(ctx, app, corev1.EventTypeWarning, "JobSubmissionFailed",
 			fmt.Sprintf("Failed to submit job: %s", reason))
+		app.Status.JobStatus.JobID = ""
 		s.updateApplicationPhase(app, v1beta1.FlinkApplicationRollingBackJob)
 		return statusChanged, nil
 	}
@@ -516,6 +560,9 @@ func (s *FlinkStateMachine) handleSubmittingJob(ctx context.Context, app *v1beta
 	if err != nil {
 		return statusUnchanged, err
 	}
+	if job == nil {
+		return statusUnchanged, errors.Errorf("Could not find job %s", app.Status.JobStatus.JobID)
+	}
 
 	// wait until all vertices have been scheduled and started
 	allVerticesStarted := true
@@ -549,7 +596,7 @@ func (s *FlinkStateMachine) handleRollingBack(ctx context.Context, app *v1beta1.
 		// move immediately to the DeployFailed state so that the user can recover.
 		s.flinkController.LogEvent(ctx, app, corev1.EventTypeWarning, "RollbackFailed",
 			fmt.Sprintf("Failed to rollback to original deployment, manual intervention needed: %s", reason))
-		return s.deployFailed(ctx, app)
+		return s.deployFailed(app)
 	}
 
 	s.flinkController.LogEvent(ctx, app, corev1.EventTypeWarning, "DeployFailed",
@@ -594,7 +641,9 @@ func (s *FlinkStateMachine) handleRollingBack(ctx context.Context, app *v1beta1.
 		app.Status.SavepointPath = ""
 		app.Status.SavepointTriggerID = ""
 		// move to the deploy failed state
-		return s.deployFailed(ctx, app)
+		s.flinkController.LogEvent(ctx, app, corev1.EventTypeNormal, "RollbackSucceeded",
+			"Successfully rolled back to previous deploy")
+		return s.deployFailed(app)
 	}
 
 	return statusUnchanged, nil
@@ -705,6 +754,10 @@ func (s *FlinkStateMachine) handleApplicationDeleting(ctx context.Context, app *
 	job, err := s.flinkController.GetJobForApplication(ctx, app, app.Status.DeployHash)
 	if err != nil {
 		return statusUnchanged, err
+	}
+
+	if job == nil {
+		return s.clearFinalizers(ctx, app)
 	}
 
 	switch app.Spec.DeleteMode {
