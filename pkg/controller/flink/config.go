@@ -130,7 +130,8 @@ func renderFlinkConfig(app *v1beta1.FlinkApplication) (string, error) {
 	(*config)["blob.server.port"] = getBlobPort(app)
 	(*config)["metrics.internal.query-service.port"] = getInternalMetricsQueryPort(app)
 	(*config)["jobmanager.heap.size"] = getJobManagerHeapMemory(app)
-	//(*config)["taskmanager.heap.size"] = getTaskManagerFlinkMemory(app)
+	//Deprecated
+	(*config)["taskmanager.heap.size"] = getTaskManagerFlinkMemory(app)
 	(*config)["taskmanager.memory.flink.size"] = getTaskManagerFlinkMemory(app)
 	//(*config)["taskmanager.memory.process.size"] = getTaskManagerProcessMemory(app)
 
