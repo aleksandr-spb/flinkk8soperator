@@ -60,7 +60,7 @@ func TestRenderFlinkConfigOverrides(t *testing.T) {
 		fmt.Sprintf("jobmanager.web.port: %d", UIDefaultPort),
 		fmt.Sprintf("metrics.internal.query-service.port: %d", MetricsQueryDefaultPort),
 		fmt.Sprintf("query.server.port: %d", QueryDefaultPort),
-		"taskmanager.heap.size: 524288k", // defaults
+		"taskmanager.memory.flink.size: 524288k", // defaults
 		"taskmanager.network.memory.fraction: 0.1",
 		"taskmanager.network.request-backoff.max: 5000",
 		fmt.Sprintf("taskmanager.numberOfTaskSlots: %d", taskSlots),
@@ -144,7 +144,7 @@ func TestEnsureNoFractionalHeapMemory(t *testing.T) {
 	app.Spec.TaskManagerConfig.Resources = &tmResources
 	app.Spec.TaskManagerConfig.OffHeapMemoryFraction = &offHeapMemoryFraction
 
-	assert.Equal(t, "41287k", getTaskManagerHeapMemory(&app))
+	assert.Equal(t, "41287k", getTaskManagerFlinkMemory(&app))
 }
 
 func TestGetTaskManagerHeapMemory(t *testing.T) {
@@ -163,7 +163,7 @@ func TestGetTaskManagerHeapMemory(t *testing.T) {
 	app.Spec.TaskManagerConfig.Resources = &tmResources
 	app.Spec.TaskManagerConfig.OffHeapMemoryFraction = &offHeapMemoryFraction
 
-	assert.Equal(t, "32768k", getTaskManagerHeapMemory(&app))
+	assert.Equal(t, "32768k", getTaskManagerFlinkMemory(&app))
 }
 
 func TestGetJobManagerHeapMemory(t *testing.T) {

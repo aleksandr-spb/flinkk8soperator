@@ -95,7 +95,12 @@ func computeHeap(memoryInBytes float64, fraction float64) string {
 	return fmt.Sprintf("%dk", kbs)
 }
 
-func getTaskManagerHeapMemory(app *v1beta1.FlinkApplication) string {
+func getTaskManagerProcessMemory(app *v1beta1.FlinkApplication) string {
+	tmMemory := getTaskManagerMemory(app)
+	return fmt.Sprintf("%dk", tmMemory)
+}
+
+func getTaskManagerFlinkMemory(app *v1beta1.FlinkApplication) string {
 	offHeapMemoryFrac := getValidFraction(app.Spec.TaskManagerConfig.OffHeapMemoryFraction, OffHeapMemoryDefaultFraction)
 	tmMemory := float64(getTaskManagerMemory(app))
 	return computeHeap(tmMemory, offHeapMemoryFrac)
@@ -125,7 +130,9 @@ func renderFlinkConfig(app *v1beta1.FlinkApplication) (string, error) {
 	(*config)["blob.server.port"] = getBlobPort(app)
 	(*config)["metrics.internal.query-service.port"] = getInternalMetricsQueryPort(app)
 	(*config)["jobmanager.heap.size"] = getJobManagerHeapMemory(app)
-	(*config)["taskmanager.heap.size"] = getTaskManagerHeapMemory(app)
+	//(*config)["taskmanager.heap.size"] = getTaskManagerFlinkMemory(app)
+	(*config)["taskmanager.memory.flink.size"] = getTaskManagerFlinkMemory(app)
+	//(*config)["taskmanager.memory.process.size"] = getTaskManagerProcessMemory(app)
 
 	// get the keys for the map
 	var keys = make([]string, len(*config))

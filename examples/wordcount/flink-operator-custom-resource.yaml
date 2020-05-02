@@ -10,7 +10,7 @@ spec:
   image: docker.io/lyft/wordcount-operator-example:{sha}
   deleteMode: None
   flinkConfig:
-    taskmanager.heap.size: 200
+    taskmanager.memory.flink.size: 200
     taskmanager.network.memory.fraction: 0.1
     taskmanager.network.memory.min: 10m
     state.backend.fs.checkpointdir: file:///checkpoints/flink/checkpoints
