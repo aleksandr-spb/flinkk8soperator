@@ -96,7 +96,7 @@ func computeHeap(memoryInBytes float64, fraction float64) string {
 }
 
 func getTaskManagerProcessMemory(app *v1beta1.FlinkApplication) string {
-	tmMemory := getTaskManagerMemory(app)
+	tmMemory := getTaskManagerMemory(app) / 1024
 	return fmt.Sprintf("%dk", tmMemory)
 }
 
@@ -131,9 +131,9 @@ func renderFlinkConfig(app *v1beta1.FlinkApplication) (string, error) {
 	(*config)["metrics.internal.query-service.port"] = getInternalMetricsQueryPort(app)
 	(*config)["jobmanager.heap.size"] = getJobManagerHeapMemory(app)
 	//Deprecated
-	(*config)["taskmanager.heap.size"] = getTaskManagerFlinkMemory(app)
-	(*config)["taskmanager.memory.flink.size"] = getTaskManagerFlinkMemory(app)
-	//(*config)["taskmanager.memory.process.size"] = getTaskManagerProcessMemory(app)
+	//(*config)["taskmanager.heap.size"] = getTaskManagerFlinkMemory(app)
+	//(*config)["taskmanager.memory.flink.size"] = getTaskManagerFlinkMemory(app)
+	(*config)["taskmanager.memory.process.size"] = getTaskManagerProcessMemory(app)
 
 	// get the keys for the map
 	var keys = make([]string, len(*config))

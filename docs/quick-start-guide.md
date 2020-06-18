@@ -103,8 +103,8 @@ spec:
     state.backend.fs.checkpointdir: file:///checkpoints/flink/checkpoints
     state.checkpoints.dir: file:///checkpoints/flink/externalized-checkpoints
     state.savepoints.dir: file:///checkpoints/flink/savepoints
-    taskmanager.memory.flink.size: 200
-  flinkVersion: "1.8"
+    taskmanager.memory.process.size: 200
+  flinkVersion: "1.10.1"
   image: docker.io/lyft/wordcount-operator-example:3b0347b2cdc1bda817e72b3099dac1c1b1363311
   jarName: wordcount-operator-example-1.0.0-SNAPSHOT.jar
   jobManagerConfig:

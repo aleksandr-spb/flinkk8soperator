@@ -60,8 +60,9 @@ func TestRenderFlinkConfigOverrides(t *testing.T) {
 		fmt.Sprintf("jobmanager.web.port: %d", UIDefaultPort),
 		fmt.Sprintf("metrics.internal.query-service.port: %d", MetricsQueryDefaultPort),
 		fmt.Sprintf("query.server.port: %d", QueryDefaultPort),
-		"taskmanager.heap.size: 524288k",         // defaults
-		"taskmanager.memory.flink.size: 524288k", // defaults
+		"taskmanager.memory.process.size: 1048576k",
+		//"taskmanager.heap.size: 524288k",         // defaults
+		//"taskmanager.memory.flink.size: 524288k", // defaults
 		"taskmanager.network.memory.fraction: 0.1",
 		"taskmanager.network.request-backoff.max: 5000",
 		fmt.Sprintf("taskmanager.numberOfTaskSlots: %d", taskSlots),

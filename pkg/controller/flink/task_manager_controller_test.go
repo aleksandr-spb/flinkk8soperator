@@ -71,7 +71,7 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 		"flink-job-properties": "jarName: test.jar\nparallelism: 8\nentryClass:com.test.MainClass\nprogramArgs:\"--test\"",
 	}
 
-	hash := "091a6972"
+	hash := "1bb8bf4b"
 
 	app.Annotations = annotations
 	expectedLabels := map[string]string{
@@ -103,7 +103,7 @@ func TestTaskManagerCreateSuccess(t *testing.T) {
 			assert.Equal(t, "blob.server.port: 6125\njobmanager.heap.size: 1572864k\n"+
 				"jobmanager.rpc.port: 6123\n"+
 				"jobmanager.web.port: 8081\nmetrics.internal.query-service.port: 50101\n"+
-				"query.server.port: 6124\ntaskmanager.heap.size: 524288k\ntaskmanager.memory.flink.size: 524288k\n"+
+				"query.server.port: 6124\ntaskmanager.memory.process.size: 1048576k\n"+
 				"taskmanager.numberOfTaskSlots: 16\n\n"+
 				"jobmanager.rpc.address: app-name-"+hash+"\n"+
 				"taskmanager.host: $HOST_IP\n",
@@ -134,7 +134,7 @@ func TestTaskManagerHACreateSuccess(t *testing.T) {
 		"flink-job-properties": "jarName: test.jar\nparallelism: 8\nentryClass:com.test.MainClass\nprogramArgs:\"--test\"",
 	}
 
-	hash := "898cc699"
+	hash := "cab1efba"
 	app.Spec.FlinkConfig = map[string]interface{}{
 		"high-availability": "zookeeper",
 	}
@@ -162,7 +162,7 @@ func TestTaskManagerHACreateSuccess(t *testing.T) {
 			assert.Equal(t, "blob.server.port: 6125\nhigh-availability: zookeeper\njobmanager.heap.size: 1572864k\n"+
 				"jobmanager.rpc.port: 6123\n"+
 				"jobmanager.web.port: 8081\nmetrics.internal.query-service.port: 50101\n"+
-				"query.server.port: 6124\ntaskmanager.heap.size: 524288k\ntaskmanager.memory.flink.size: 524288k\n"+
+				"query.server.port: 6124\ntaskmanager.memory.process.size: 1048576k\n"+
 				"taskmanager.numberOfTaskSlots: 16\n\n"+
 				"high-availability.cluster-id: app-name-"+hash+"\n"+
 				"taskmanager.host: $HOST_IP\n",
@@ -206,7 +206,7 @@ func TestTaskManagerSecurityContextAssignment(t *testing.T) {
 		RunAsNonRoot: &runAsNonRoot,
 	}
 
-	hash := "f9e2bb4a"
+	hash := "2fb00a68"
 
 	ctr := 0
 	mockK8Cluster := testController.k8Cluster.(*k8mock.K8Cluster)

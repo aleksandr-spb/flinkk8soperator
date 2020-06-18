@@ -62,7 +62,7 @@ func TestJobManagerCreateSuccess(t *testing.T) {
 		"flink-job-properties": "jarName: " + testJarName + "\nparallelism: 8\nentryClass:" + testEntryClass + "\nprogramArgs:\"" + testProgramArgs + "\"",
 	}
 	app.Annotations = annotations
-	hash := "288a513e"
+	hash := "b5f75f92"
 	expectedLabels := map[string]string{
 		"flink-app":             "app-name",
 		"flink-app-hash":        hash,
@@ -91,7 +91,7 @@ func TestJobManagerCreateSuccess(t *testing.T) {
 			assert.Equal(t, "blob.server.port: 6125\njobmanager.heap.size: 1572864k\n"+
 				"jobmanager.rpc.port: 6123\n"+
 				"jobmanager.web.port: 8081\nmetrics.internal.query-service.port: 50101\n"+
-				"query.server.port: 6124\ntaskmanager.heap.size: 524288k\ntaskmanager.memory.flink.size: 524288k\n"+
+				"query.server.port: 6124\ntaskmanager.memory.process.size: 1048576k\n"+
 				"taskmanager.numberOfTaskSlots: 16\n\n"+
 				"jobmanager.rpc.address: app-name-"+hash+"\n",
 				common.GetEnvVar(deployment.Spec.Template.Spec.Containers[0].Env,
@@ -140,7 +140,7 @@ func TestJobManagerHACreateSuccess(t *testing.T) {
 	app.Spec.FlinkConfig = map[string]interface{}{
 		"high-availability": "zookeeper",
 	}
-	hash := "898cc699"
+	hash := "cab1efba"
 	expectedLabels := map[string]string{
 		"flink-app":             "app-name",
 		"flink-app-hash":        hash,
@@ -168,7 +168,7 @@ func TestJobManagerHACreateSuccess(t *testing.T) {
 			assert.Equal(t, "blob.server.port: 6125\nhigh-availability: zookeeper\njobmanager.heap.size: 1572864k\n"+
 				"jobmanager.rpc.port: 6123\n"+
 				"jobmanager.web.port: 8081\nmetrics.internal.query-service.port: 50101\n"+
-				"query.server.port: 6124\ntaskmanager.heap.size: 524288k\ntaskmanager.memory.flink.size: 524288k\n"+
+				"query.server.port: 6124\ntaskmanager.memory.process.size: 1048576k\n"+
 				"taskmanager.numberOfTaskSlots: 16\n\n"+
 				"high-availability.cluster-id: app-name-"+hash+"\n"+
 				"jobmanager.rpc.address: $HOST_IP\n",
@@ -222,7 +222,7 @@ func TestJobManagerSecurityContextAssignment(t *testing.T) {
 		RunAsNonRoot: &runAsNonRoot,
 	}
 
-	hash := "f9e2bb4a"
+	hash := "2fb00a68"
 
 	ctr := 0
 	mockK8Cluster := testController.k8Cluster.(*k8mock.K8Cluster)
