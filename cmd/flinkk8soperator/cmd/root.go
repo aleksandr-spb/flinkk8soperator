@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common/monitoring"
 	"os"
 	"strings"
 
@@ -110,6 +111,7 @@ func executeRootCmd(controllerCfg *controllerConfig.Config) error {
 	ctx, cancelNow := context.WithCancel(context.Background())
 
 	labeled.SetMetricKeys(common.GetValidLabelNames()...)
+	monitoring.SetMetricKeys(common.GetValidLabelNames()...)
 
 	logger.Infof(ctx, "%+v\n", controllerCfg)
 

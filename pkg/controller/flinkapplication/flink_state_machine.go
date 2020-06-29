@@ -293,6 +293,15 @@ func (s *FlinkStateMachine) handleClusterStarting(ctx context.Context, applicati
 	return statusChanged, nil
 }
 
+func (s *FlinkStateMachine) applicationJobFinished(ctx context.Context, application *v1beta1.FlinkApplication) bool {
+	switch application.Status.JobStatus.State {
+	case v1beta1.Canceled, v1beta1.Failed, v1beta1.Finished:
+		return true
+	default:
+		return false
+	}
+}
+
 func (s *FlinkStateMachine) handleApplicationSavepointing(ctx context.Context, application *v1beta1.FlinkApplication) (bool, error) {
 	// we've already savepointed (or this is our first deploy), continue on
 	if application.Status.SavepointPath != "" || application.Status.DeployHash == "" {
@@ -305,6 +314,22 @@ func (s *FlinkStateMachine) handleApplicationSavepointing(ctx context.Context, a
 			fmt.Sprintf("Could not savepoint existing job: %s", reason))
 		application.Status.RetryCount = 0
 		s.updateApplicationPhase(application, v1beta1.FlinkApplicationRecovering)
+		return statusChanged, nil
+	}
+
+	// check that job can be savepointed. if can't try to use last checkpoint as savepoint
+	if s.applicationJobFinished(ctx, application) {
+
+		s.flinkController.LogEvent(ctx, application, corev1.EventTypeNormal,
+			fmt.Sprintf("%sJob", application.Status.JobStatus.State),
+			fmt.Sprintf("Job has already been cancelled. "+
+				"Trying to use checkpoint for new job: %s", application.Status.JobStatus.LastCheckpointPath))
+
+		if application.Status.JobStatus.LastCheckpointPath != "" {
+			application.Status.SavepointPath = application.Status.JobStatus.LastCheckpointPath
+		}
+		application.Status.JobStatus.JobID = ""
+		s.updateApplicationPhase(application, v1beta1.FlinkApplicationSubmittingJob)
 		return statusChanged, nil
 	}
 
@@ -773,6 +798,16 @@ func (s *FlinkStateMachine) handleApplicationDeleting(ctx context.Context, app *
 		logger.Infof(ctx, "Force-cancelling job without a savepoint")
 		return statusUnchanged, s.flinkController.ForceCancel(ctx, app, app.Status.DeployHash)
 	case v1beta1.DeleteModeSavepoint, "":
+
+		//job is already finished unexpectedly
+		if app.Status.SavepointPath == "" && jobFinished(job) {
+			if app.Status.JobStatus.LastCheckpointPath != "" {
+				app.Status.SavepointPath = app.Status.JobStatus.LastCheckpointPath
+			} else {
+				return s.clearFinalizers(ctx, app)
+			}
+		}
+
 		if app.Status.SavepointPath != "" {
 			// we've already created the savepoint, now just waiting for the job to be cancelled
 			if jobFinished(job) {

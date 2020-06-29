@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common/monitoring"
 	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -113,6 +114,8 @@ func newControllerMetrics(scope promutils.Scope) *controllerMetrics {
 		deleteResourceSuccessCounter: labeled.NewCounter("delete_resource_success", "Flink resource deleted successfully", flinkControllerScope),
 		deleteResourceFailedCounter:  labeled.NewCounter("delete_resource_failure", "Flink resource deletion failed", flinkControllerScope),
 		applicationChangedCounter:    labeled.NewCounter("app_changed_counter", "Flink application has changed", flinkControllerScope),
+		clusterStatusGauge:           monitoring.NewGauge("cluster_status_gauge", "Flink application cluster status indicator", flinkControllerScope),
+		jobStatusGauge:               monitoring.NewGauge("job_status_gauge", "Flink application job status indicator", flinkControllerScope),
 	}
 }
 
@@ -121,6 +124,8 @@ type controllerMetrics struct {
 	deleteResourceSuccessCounter labeled.Counter
 	deleteResourceFailedCounter  labeled.Counter
 	applicationChangedCounter    labeled.Counter
+	clusterStatusGauge           monitoring.Gauge
+	jobStatusGauge               monitoring.Gauge
 }
 
 type Controller struct {
@@ -522,6 +527,15 @@ func (f *Controller) CompareAndUpdateClusterStatus(ctx context.Context, applicat
 		application.Status.ClusterStatus.Health = v1beta1.Yellow
 	}
 
+	switch application.Status.ClusterStatus.Health {
+	case v1beta1.Green:
+		f.metrics.clusterStatusGauge.Set(ctx, 3.0)
+	case v1beta1.Yellow:
+		f.metrics.clusterStatusGauge.Set(ctx, 2.0)
+	case v1beta1.Red:
+		f.metrics.clusterStatusGauge.Set(ctx, 1.0)
+	}
+
 	return !apiequality.Semantic.DeepEqual(oldClusterStatus, application.Status.ClusterStatus), nil
 }
 
@@ -611,12 +625,16 @@ func (f *Controller) CompareAndUpdateJobStatus(ctx context.Context, app *v1beta1
 		time.Since(app.Status.JobStatus.LastFailingTime.Time) < failingIntervalThreshold ||
 		verticesInCreated > 0 {
 		app.Status.JobStatus.Health = v1beta1.Red
+		f.metrics.jobStatusGauge.Set(ctx, 1.0)
 	} else if time.Since(time.Unix(int64(lastCheckpointAgeSeconds), 0)) < maxCheckpointTime ||
 		runningTasks < totalTasks {
 		app.Status.JobStatus.Health = v1beta1.Yellow
+		f.metrics.jobStatusGauge.Set(ctx, 2.0)
 	} else {
 		app.Status.JobStatus.Health = v1beta1.Green
+		f.metrics.jobStatusGauge.Set(ctx, 3.0)
 	}
+
 	// Update LastFailingTime
 	if app.Status.JobStatus.State == v1beta1.Failing {
 		currTime := metav1.Now()

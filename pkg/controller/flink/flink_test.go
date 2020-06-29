@@ -2,6 +2,7 @@ package flink
 
 import (
 	"context"
+	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/common/monitoring"
 	"testing"
 
 	"github.com/aleksandr-spb/flinkk8soperator/pkg/controller/config"
@@ -43,6 +44,7 @@ const testProgramArgs = "--test"
 func getTestFlinkController() Controller {
 	testScope := mockScope.NewTestScope()
 	labeled.SetMetricKeys(common.GetValidLabelNames()...)
+	monitoring.SetMetricKeys(common.GetValidLabelNames()...)
 
 	recorderProvider := record.NewBroadcaster()
 
